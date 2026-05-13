@@ -1,0 +1,15 @@
+/* Importation principale de Tailwind v4 */
+@import "tailwindcss";
+
+/* Configuration et Design System complet (Optionnel) */
+@theme {
+  /* Ajouter une couleur personnalisée */
+  --color-brand-primary: #1da1f2;
+  --color-brand-dark: #0f172a;
+
+  /* Ajouter une police personnalisée */
+  --font-display: "Inter", sans-serif;
+
+  /* Ajouter un breakpoint d'écran */
+  --breakpoint-3xl: 1920px;
+}
