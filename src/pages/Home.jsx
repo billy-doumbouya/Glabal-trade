@@ -8,23 +8,42 @@ export default function Home() {
   return (
     <main className="pt-16" ref={parentRef}>
       {/* Hero */}
-      <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-6 text-center">
+      <section
+        className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 px-6 text-center"
+        data-aos="fade-up"
+      >
         <div>
-          <span className="inline-block bg-amber-400/10 text-amber-400 text-xs font-semibold px-4 py-1 rounded-full mb-6 tracking-widest uppercase">
+          <span
+            className="inline-block bg-amber-400/10 text-amber-400 text-xs font-semibold px-4 py-1 rounded-full mb-6 tracking-widest uppercase"
+            data-aos="zoom-in"
+            data-aos-delay="100"
+          >
             Commerce International
           </span>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+          <h1
+            className="text-5xl md:text-7xl font-bold mb-6 leading-tight"
+            data-aos="fade-right"
+            data-aos-delay="200"
+          >
             Votre partenaire
             <br />
             <span className="text-amber-400">d'import-export</span>
             <br />
             mondial
           </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto mb-10">
+          <p
+            className="text-slate-400 text-lg max-w-xl mx-auto mb-10"
+            data-aos="fade-left"
+            data-aos-delay="300"
+          >
             Logistique internationale, dédouanement et conseil en commerce
             extérieur. Nous connectons vos marchés avec fiabilité et expertise.
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
+          <div
+            className="flex gap-4 justify-center flex-wrap"
+            data-aos="zoom-in"
+            data-aos-delay="400"
+          >
             <Link
               to="/contact"
               className="bg-amber-400 text-slate-950 px-8 py-3 rounded-full font-semibold hover:bg-amber-300 transition"
@@ -42,15 +61,19 @@ export default function Home() {
       </section>
 
       {/* Stats */}
-      <section className="bg-amber-400 py-16 px-6">
+      <section className="bg-amber-400 py-16 px-6" data-aos="fade-up">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-slate-950">
           {[
             { value: 15, suffix: "+", label: "Années d'expérience" },
             { value: 50, suffix: "+", label: "Pays couverts" },
             { value: 1200, suffix: "+", label: "Clients satisfaits" },
             { value: 98, suffix: "%", label: "Livraisons à temps" },
-          ].map((s) => (
-            <div key={s.label}>
+          ].map((s, idx) => (
+            <div
+              key={s.label}
+              data-aos="fade-up"
+              data-aos-delay={`${idx * 100}`}
+            >
               <div className="text-4xl font-bold" ref={parentRef}>
                 <Counter target={s.value} suffix={s.suffix} />
               </div>
@@ -63,9 +86,12 @@ export default function Home() {
       </section>
 
       {/* Services aperçu */}
-      <section className="py-24 px-6 bg-slate-950">
+      <section className="py-24 px-6 bg-slate-950" data-aos="fade-up">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-16">
+          <h2
+            className="text-3xl font-bold text-center mb-16"
+            data-aos="fade-down"
+          >
             Nos <span className="text-amber-400">Services</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -85,11 +111,13 @@ export default function Home() {
                 title: "Dédouanement",
                 desc: "Traitement efficace de vos formalités douanières.",
               },
-            ].map((s) => (
+            ].map((s, idx) => (
               <div
                 key={s.title}
                 ref={parentRef}
                 className="bg-slate-900 border border-slate-800 rounded-2xl p-8 hover:border-amber-400/50 transition group"
+                data-aos="zoom-in"
+                data-aos-delay={`${idx * 100}`}
               >
                 <div className="text-4xl mb-4">{s.icon}</div>
                 <h3 className="text-xl font-semibold mb-3 group-hover:text-amber-400 transition">
@@ -101,7 +129,11 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="text-center mt-10">
+          <div
+            className="text-center mt-10"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
             <Link
               to="/services"
               className="text-amber-400 hover:underline font-medium"

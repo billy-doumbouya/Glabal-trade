@@ -13,6 +13,7 @@
     "@formkit/auto-animate": "^0.9.0",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.3.0",
+    "aos": "^2.3.4",
     "countup.js": "^2.10.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",
