@@ -36,22 +36,40 @@ export default function Services() {
   return (
     <main className="pt-24 min-h-screen bg-slate-950 px-6 pb-20">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-4">
+        {/* TITLE */}
+        <h1
+          data-aos="fade-down"
+          className="text-4xl font-bold text-center mb-4"
+        >
           Nos <span className="text-amber-400">Services</span>
         </h1>
-        <p className="text-slate-400 text-center mb-16">
+
+        {/* SUBTITLE */}
+        <p
+          data-aos="fade-up"
+          data-aos-delay="100"
+          className="text-slate-400 text-center mb-16"
+        >
           Solutions complètes pour votre commerce international
         </p>
+
+        {/* GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((s) => (
+          {services.map((s, i) => (
             <div
               key={s.title}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-8 hover:border-amber-400/50 transition group"
+              data-aos="fade-up"
+              data-aos-delay={150 + i * 120}
+              data-aos-duration="700"
+              className="bg-slate-900 border border-slate-800 rounded-2xl p-8 
+                     hover:border-amber-400/50 transition group"
             >
               <div className="text-4xl mb-5">{s.icon}</div>
+
               <h3 className="text-xl font-semibold mb-3 group-hover:text-amber-400 transition">
                 {s.title}
               </h3>
+
               <p className="text-slate-400 text-sm leading-relaxed">{s.desc}</p>
             </div>
           ))}

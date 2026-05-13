@@ -18,9 +18,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16">
         <Link
           to="/"
-          className="text-xl font-bold text-amber-400 tracking-wider"
+          className="text-xl font-bold text-amber-400 tracking-wider flex items-center gap-1"
         >
-          GLOBAL<span className="text-white">TRADE</span>
+          <img
+            src="/logo.png"
+            alt="Logo"
+            className="inline w-12 h-12 mr-1 mt-2 rounded-md"
+          />
+          <span className="hidden md:inline-block">
+            GLOBAL<span className="text-white">TRADE</span>
+          </span>
         </Link>
 
         <ul className="hidden md:flex gap-8">
