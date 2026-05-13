@@ -11,6 +11,7 @@ import About from "./pages/About";
 import Services from "./pages/Services";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
+import { ScrollToTop } from "./components/ui/ScroolTop.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -37,6 +38,7 @@ function AppContent() {
 
   return (
     <>
+      <ScrollToTop />
       <GlobalLoader active={isLoading} />
       <div
         className={`min-h-screen bg-slate-950 text-white ${isLoading ? "pointer-events-none" : ""}`}
