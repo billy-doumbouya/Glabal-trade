@@ -1,116 +1,134 @@
 import { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
+import { SYSTEM } from "./ui/System";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const SYSTEM = `Tu es l'assistant virtuel de GlobalTrade, entreprise spécialisée dans l'import-export international basée en Guinée. 
-Tu réponds aux questions sur nos services : logistique, dédouanement, transport maritime et aérien, conseil en commerce extérieur.
-Sois professionnel, concis et utile. Réponds toujours en français.`;
+const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
+
   const [messages, setMessages] = useState([
     {
       role: "assistant",
       text: "Bonjour ! Je suis l'assistant GlobalTrade. Comment puis-je vous aider ?",
     },
   ]);
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
   const endRef = useRef(null);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: "smooth" });
+    endRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
   }, [messages]);
+
   async function send() {
     if (!input.trim() || loading) return;
 
     const userMsg = input.trim();
+
     setInput("");
 
-    // 1. Mise à jour immédiate de l'UI
-    const newMessages = [...messages, { role: "user", text: userMsg }];
-    setMessages(newMessages);
+    const updatedMessages = [
+      ...messages,
+      {
+        role: "user",
+        text: userMsg,
+      },
+    ];
+
+    setMessages(updatedMessages);
+
     setLoading(true);
 
     try {
-      // 2. Préparation de l'historique pour Gemini
-      // On ne garde que les messages qui ont un texte et on s'assure de l'alternance
-      const history = newMessages
-        .filter((m, index) => {
-          // Règle d'or : Le tout premier message de l'historique DOIT être "user"
-          // Donc on ignore le message de bienvenue de l'assistant à l'index 0
-          return index > 0;
-        })
-        .map((m) => ({
-          role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.text }],
-        }));
+      if (!API_KEY) {
+        throw new Error("Clé API OpenRouter manquante");
+      }
 
-      if (!API_KEY) throw new Error("Clé API manquante");
+      // Format OpenAI/OpenRouter
+      const history = updatedMessages.map((m) => ({
+        role: m.role,
+        content: m.text,
+      }));
 
-      // 3. Appel API
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
-        {
-          // https://generativelanguage.googleapis.com/v1beta/models
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: SYSTEM }] },
-            contents: history,
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 500,
-            },
-          }),
+      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "Content-Type": "application/json",
+
+          // optionnel mais recommandé
+          "HTTP-Referer": window.location.origin,
+          "X-Title": "GlobalTrade Chatbot",
         },
-      );
+
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+
+          messages: [
+            {
+              role: "system",
+              content: SYSTEM,
+            },
+
+            ...history,
+          ],
+
+          temperature: 0.7,
+          max_tokens: 500,
+        }),
+      });
 
       const data = await res.json();
 
-      // 4. Diagnostic précis en cas d'erreur
+      // Gestion erreurs HTTP
       if (!res.ok) {
         console.error(`Erreur HTTP ${res.status}:`, data);
 
-        let errorMsg = "Erreur de connexion";
-        if (res.status === 401 || res.status === 403) {
-          errorMsg = "Clé API invalide ou expirée";
+        let errorMsg = "Erreur OpenRouter";
+
+        if (res.status === 401) {
+          errorMsg = "Clé API OpenRouter invalide";
         } else if (res.status === 429) {
-          errorMsg = "Quota API dépassé. Réessayez plus tard";
+          errorMsg = "Limite API atteinte";
         } else if (res.status === 400) {
-          errorMsg = `Requête invalide: ${data.error?.message || ""}`;
+          errorMsg = data.error?.message || "Requête invalide";
         }
+
+        toast.error(errorMsg);
 
         throw new Error(errorMsg);
       }
 
-      if (data.error) {
-        console.error("Erreur API Gemini:", data.error);
-        throw new Error(data.error?.message || "Erreur API Gemini");
+      // Réponse IA
+      const reply = data.choices?.[0]?.message?.content;
+
+      if (!reply) {
+        throw new Error("Aucune réponse du modèle");
       }
 
-      // 5. Extraction de la réponse
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-      if (reply) {
-        setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
-      } else {
-        // Si Gemini bloque le contenu (sécurité), on vérifie le finishReason
-        const reason = data.candidates?.[0]?.finishReason;
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            text: `Désolé, je ne peux pas répondre (Raison: ${reason || "inconnue"}).`,
-          },
-        ]);
-      }
-    } catch (error) {
-      console.error("Erreur Chatbot:", error.message);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          text: `⚠️ ${error.message || "Problème technique. Vérifiez votre clé API ou votre connexion."}`,
+          text: reply,
+        },
+      ]);
+    } catch (error) {
+      console.error("Erreur Chatbot:", error);
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text:
+            "⚠️ " +
+            (error.message || "Problème technique. Vérifiez votre connexion."),
         },
       ]);
     } finally {
@@ -137,7 +155,9 @@ export default function Chatbot() {
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${
+                  m.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
                 <div
                   className={`max-w-[75%] text-sm px-3 py-2 rounded-xl leading-relaxed ${
@@ -150,6 +170,7 @@ export default function Chatbot() {
                 </div>
               </div>
             ))}
+
             {loading && (
               <div className="flex justify-start">
                 <div className="bg-slate-800 text-slate-400 text-sm px-3 py-2 rounded-xl">
@@ -157,6 +178,7 @@ export default function Chatbot() {
                 </div>
               </div>
             )}
+
             <div ref={endRef} />
           </div>
 
@@ -164,13 +186,20 @@ export default function Chatbot() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && send()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
               placeholder="Votre question..."
               className="flex-1 bg-slate-800 text-white text-sm px-3 py-2 rounded-lg outline-none placeholder-slate-500"
             />
+
             <button
               onClick={send}
-              className="bg-amber-400 text-slate-950 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-amber-300 transition"
+              disabled={loading}
+              className="bg-amber-400 text-slate-950 px-3 py-2 rounded-lg text-sm font-semibold hover:bg-amber-300 transition disabled:opacity-50"
             >
               →
             </button>
